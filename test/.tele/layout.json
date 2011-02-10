@@ -1,0 +1,13 @@
+{
+  "roles": {
+    "db": ["redis"],
+    "web": ["ruby", "unicorn"],
+    "app": ["db", "web"]
+  },
+
+  "servers": {
+    "app-1": ["db", "web"],
+    "app-2": ["db"],
+    "app-3": ["app"]
+  }
+}

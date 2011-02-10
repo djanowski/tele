@@ -1,0 +1,9 @@
+{
+  "roles": {
+    "db": ["redis"]
+  },
+
+  "servers": {
+    "db-1": ["db"]
+  }
+}

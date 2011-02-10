@@ -1,0 +1,141 @@
+#! /usr/bin/env ruby
+
+require "rubygems"
+require "clap"
+require "json"
+
+def recipes_for(assigned_roles)
+  [].tap do |recipes|
+    assigned_roles.each do |name|
+      if roles[name]
+        recipes.concat(recipes_for(roles[name]))
+      else
+        recipes.push(name)
+      end
+    end
+  end
+end
+
+def path(*parts)
+  File.expand_path(File.join(*parts), ENV["TELE_HOME"])
+end
+
+def ssh(server, script)
+  %x{ssh -T -F #{path("ssh_config")} #{server} < #{script}}
+  $?.exitstatus
+end
+
+def layout
+  $layout ||= JSON.parse(File.read(path("layout.json")))
+end
+
+def servers
+  layout["servers"]
+end
+
+def roles
+  layout["roles"]
+end
+
+def recipe_script(recipe, command)
+  path("recipes", recipe, "#{command}.sh")
+end
+
+def run(server, recipe, command)
+  script = recipe_script(recipe, command)
+
+  if File.exist?(script)
+    ssh(server, script)
+  end
+end
+
+out = Module.new do
+  def self.server(name)
+    puts name
+  end
+
+  def self.error
+    puts "\033[01;31mERROR\033[00m"
+  end
+
+  def self.ok
+    puts "\033[01;32mOK\033[00m"
+  end
+
+  def self.missing
+    puts "\033[01;33mMISSING\033[00m"
+  end
+
+  def self.done
+    puts "\033[01;32mDONE\033[00m"
+  end
+
+  def self.unknown
+    puts "?"
+  end
+end
+
+###
+
+ENV["TELE_HOME"] ||= File.join(Dir.pwd, ".tele")
+
+commands = Clap.run ARGV,
+  "-d" => lambda { |path|
+    ENV["TELE_HOME"] = File.join(Dir.pwd, path)
+  }
+
+unless File.directory?(path)
+  $stderr.puts "Couldn't find a .tele directory"
+  exit 1
+end
+
+Clap.run commands,
+  "status" => lambda {
+    servers.each do |server, assigned_roles|
+      out.server(server)
+
+      recipes_for(assigned_roles).each do |recipe|
+        print "  #{recipe}: "
+
+        case run(server, recipe, :status)
+        when nil
+          out.unknown
+        when 0
+          out.ok
+        else
+          out.missing
+        end
+      end
+
+      puts
+    end
+  },
+
+  "install" => lambda {
+    servers.each do |server, assigned_roles|
+      out.server(server)
+
+      recipes_for(assigned_roles).each do |recipe|
+        print "  #{recipe}: "
+
+        if run(server, recipe, :status) == 0
+          out.ok
+        else
+          case run(server, recipe, :install)
+          when nil
+            out.unknown
+          when 0
+            if run(server, recipe, :status) == 0
+              out.done
+            else
+              out.missing
+            end
+          else
+            out.error
+          end
+        end
+      end
+
+      puts
+    end
+  }
