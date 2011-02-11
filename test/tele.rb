@@ -72,3 +72,19 @@ test "`tele install`" do
   assert out =~ /redis: .*OK/
   assert out =~ /tokyo: .*MISSING/
 end
+
+test "`tele init`" do
+  `rm -rf test/tmp`
+  `mkdir test/tmp`
+
+  assert !File.exists?("test/tmp/.tele")
+
+  Dir.chdir("test/tmp") do
+    out, err = tele("init")
+
+    assert File.exists?(".tele")
+
+    out, err, status = tele("status")
+    assert status.exitstatus == 0
+  end
+end
