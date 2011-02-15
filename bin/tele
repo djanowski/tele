@@ -1,6 +1,11 @@
 #! /usr/bin/env ruby
 
-require "rubygems"
+help = File.expand_path(File.join("..", "README"), File.dirname(__FILE__))
+
+if ARGV.empty?
+  exec "less #{help}"
+end
+
 require "clap"
 require "json"
 
@@ -80,6 +85,9 @@ end
 ENV["TELE_HOME"] ||= File.join(Dir.pwd, ".tele")
 
 commands = Clap.run ARGV,
+  "-h" => lambda {
+    exec "less #{help}"
+  },
   "-d" => lambda { |path|
     ENV["TELE_HOME"] = File.join(Dir.pwd, path)
   }
@@ -89,7 +97,8 @@ Clap.run commands,
     source = File.expand_path("../templates/.tele", File.dirname(__FILE__))
     target = File.expand_path(Dir.pwd)
 
-    puts `cp -r #{source} #{target}`
+    %x{cp -r #{source} #{target}}
+    out.done
   }
 
 unless File.directory?(path)

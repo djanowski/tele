@@ -1,0 +1,121 @@
+TELE(1)
+
+NAME
+      tele -- Provisioning at a distance.
+
+SYNOPSIS
+      tele [-h] [-d path] (init|status|install)
+
+DESCRIPTION
+      Tele is a small provisioning framework that allows you to run bash
+      scripts on remote servers over SSH. It uses your own SSH, not a Ruby
+      version, so you can profit from your settings and public/private keys.
+
+      It uses the following directory structure to store the recipes and
+      configuration files:
+
+          .tele/layout.json
+          .tele/ssh_config
+          .tele/recipes/redis/status.sh
+          .tele/recipes/redis/install.sh
+          .tele/recipes/unicorn/status.sh
+          .tele/recipes/unicorn/install.sh
+
+      In the example, there are recipes for Redis and Unicorn. Please note that you are in
+      charge of creating them.
+
+      layout.json
+          The server layout, with the available roles and servers. Example:
+
+          {
+            "roles": {
+              "db": ["redis"],
+              "web": ["ruby", "unicorn"],
+              "app": ["db", "web"]
+            },
+
+            "servers": {
+              "app-1": ["db", "web"],
+              "app-2": ["db"],
+              "app-3": ["app"]
+            }
+          }
+
+          The key "roles" stores a tree, where each key is mapped
+          to an array of recipes. The leaves--those elements in the tree that
+          are not present as keys--are the ones that have to be available as
+          bash scripts. In this example, both "redis" and "unicorn" are leaves,
+          while "db", "web" and "app" are recipes composed of other recipes.
+
+          The key "servers" stores a map of servers to roles. The keys can be
+          either hostnames declared in .tele/ssh_config or IP addresses.
+
+      ssh_config
+          Configuration file for the SSH connection. Check the SSH_CONFIG man
+          page for more information.
+
+      The following options are available:
+
+      -h
+          Display this help message.
+
+      -d path
+          Sets path as the directory where tele will search for scripts and
+          configuration files. You can also use the environment variable
+          TELE_HOME.
+
+      init
+          Copies a .tele template to the current directory.
+
+      status
+          Runs every status.sh script on the servers declared in layout.json,
+          and prints the responses. The status.sh script must return 0 if
+          everything is correct, and a value different form zero otherwise.
+          What to check in the script is up to the user.
+
+      install
+          Runs every install.sh script on the servers declared in layout.json,
+          but only if the status.sh returns an error. The exit code must be 0
+          if the installation was successful.
+
+USAGE
+      To provision two servers called `server1` and `server2` with Redis,
+      starting from scratch:
+
+          # Create the .tele directory.
+          $ tele init
+
+          # Create directories for the recipes.
+          $ mkdir -p .tele/recipes/redis
+
+          # Create status.sh script.
+          $ cat "which redis-server" > ./tele/recipes/redis/status.sh
+
+          # Create install.sh script (ommited).
+
+          # Edit .tele/layout.json as follows:
+
+            {
+              "roles": {
+                "db": ["redis"]
+              },
+
+              "servers": {
+                "server1": ["db"],
+                "server2": ["db"]
+              }
+            }
+
+          # Edit .tele/ssh_config:
+
+            Host server1
+              Hostname 10.0.0.1
+
+            Host server2
+              Hostname 10.0.0.2
+
+          # Run tele install
+          $ tele install
+
+INSTALLATION
+      $ gem install tele

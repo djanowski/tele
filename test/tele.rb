@@ -8,7 +8,7 @@ def root(*args)
 end
 
 def tele(*args)
-  sh("rvm 1.8.7 ruby #{root "bin/tele"} #{Shellwords.join args}")
+  sh("ruby #{root "bin/tele"} #{Shellwords.join args}")
 end
 
 def sh(cmd)
