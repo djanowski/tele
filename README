@@ -89,7 +89,7 @@ USAGE
           $ mkdir -p .tele/recipes/redis
 
           # Create status.sh script.
-          $ cat "which redis-server" > ./tele/recipes/redis/status.sh
+          $ echo "which redis-server" > ./tele/recipes/redis/status.sh
 
           # Create install.sh script (ommited).
 
