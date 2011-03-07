@@ -132,7 +132,13 @@ Clap.run commands,
     servers.each do |server, assigned_roles|
       out.server(server)
 
-      recipes_for(assigned_roles).each do |recipe|
+      recipes = recipes_for(assigned_roles)
+      if commands.size >= 2
+        _, *selected_recipes = commands
+        recipes.select! {|recipe| selected_recipes.include?(recipe)}
+      end
+
+      recipes.each do |recipe|
         print "  #{recipe}: "
 
         if run(server, recipe, :status) == 0

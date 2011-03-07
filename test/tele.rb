@@ -73,6 +73,26 @@ test "`tele install`" do
   assert out =~ /tokyo: .*MISSING/
 end
 
+test "`tele install` with a given package" do
+  out, err = tele("install", "redis", "ruby", "-d", "test/.tele")
+
+  parts = out.split("\n\n")
+
+  assert parts[0] =~ /app-1/
+  assert parts[0] =~ /redis/
+  assert parts[0] =~ /ruby/
+  assert !(parts[0] =~ /unicorn/)
+
+  assert parts[1] =~ /app-2/
+  assert parts[1] =~ /redis/
+
+  assert parts[2] =~ /app-3/
+  assert parts[2] =~ /redis/
+  assert parts[2] =~ /ruby/
+  assert !(parts[2] =~ /unicorn/)
+
+end
+
 test "`tele init`" do
   `rm -rf test/tmp`
   `mkdir test/tmp`
