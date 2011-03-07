@@ -3,7 +3,7 @@
 help = File.expand_path(File.join("..", "README"), File.dirname(__FILE__))
 
 if ARGV.empty?
-  exec "less #{help}"
+  exec "${PAGER:-less} #{help}"
 end
 
 require "clap"
@@ -86,7 +86,7 @@ ENV["TELE_HOME"] ||= File.join(Dir.pwd, ".tele")
 
 commands = Clap.run ARGV,
   "-h" => lambda {
-    exec "less #{help}"
+    exec "${PAGER:-less} #{help}"
   },
   "-d" => lambda { |path|
     ENV["TELE_HOME"] = File.join(Dir.pwd, path)
