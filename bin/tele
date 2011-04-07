@@ -9,6 +9,8 @@ end
 require "clap"
 require "json"
 
+trap(:INT) { puts; exit 1 }
+
 def recipes_for(assigned_roles)
   [].tap do |recipes|
     assigned_roles.each do |name|
