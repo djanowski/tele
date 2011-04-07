@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name              = "tele"
-  s.version           = "0.0.1"
+  s.version           = "0.0.2"
   s.summary           = "Provisioning at a distance"
   s.description       = "Tele is a small provisioning framework that allows you to run bash scripts on remote servers over SSH."
   s.authors           = ["Damian Janowski", "Michel Martens"]
@@ -11,5 +11,13 @@ Gem::Specification.new do |s|
 
   s.add_dependency("clap")
 
-  s.files = ["LICENSE", "README", "Rakefile", "bin/tele", "templates/.tele/layout.json", "templates/.tele/ssh_config", "tele.gemspec", "test/tele.rb"]
+  s.files = Dir[
+    "LICENSE",
+    "README*",
+    "Rakefile",
+    "bin/*",
+    "templates/.tele/**/*",
+    "*.gemspec",
+    "test/*.*"
+  ]
 end
