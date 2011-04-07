@@ -88,3 +88,9 @@ test "`tele init`" do
     assert status.exitstatus == 0
   end
 end
+
+test "Logging to syslog" do
+  out, err = tele("status", "-d", "test/.tele.simple")
+
+  assert `tail -n 20 /var/log/syslog /var/log/system.log 2>/dev/null`["Can't find Cassandra"]
+end

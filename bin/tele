@@ -26,7 +26,7 @@ def path(*parts)
 end
 
 def ssh(server, script)
-  %x{ssh -T -F #{path("ssh_config")} #{server} < #{script}}
+  %x{bash -c "ssh -T -F #{path("ssh_config")} #{server} < #{script} > >(logger -t 'tele/#{server}') 2>&1"}
   $?.exitstatus
 end
 
