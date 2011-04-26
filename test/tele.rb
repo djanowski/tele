@@ -73,6 +73,8 @@ test "`tele init`" do
     out, err = tele("init")
 
     assert File.exists?(".tele")
+    assert File.exists?(".tele/recipes")
+    assert !File.exists?(".tele/recipes/.empty")
 
     out, err, status = tele("deploy")
     assert status.exitstatus == 0

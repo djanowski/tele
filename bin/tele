@@ -88,6 +88,8 @@ Clap.run commands,
     target = File.expand_path(Dir.pwd)
 
     %x{cp -r #{source} #{target}}
+
+    %x{find #{target} -name .empty -print0 | xargs rm}
     out.done
   }
 
