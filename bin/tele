@@ -44,12 +44,8 @@ def roles
   layout["roles"]
 end
 
-def recipe_script(recipe, command)
-  path("recipes", recipe, "#{command}.sh")
-end
-
-def run(server, recipe, command)
-  script = recipe_script(recipe, command)
+def run(server, recipe)
+  script = path("recipes", "#{recipe}.sh")
 
   if File.exist?(script)
     ssh(server, script)
@@ -67,14 +63,6 @@ out = Module.new do
 
   def self.ok
     puts "\033[01;32mOK\033[00m"
-  end
-
-  def self.missing
-    puts "\033[01;33mMISSING\033[00m"
-  end
-
-  def self.done
-    puts "\033[01;32mDONE\033[00m"
   end
 
   def self.unknown
@@ -109,49 +97,20 @@ unless File.directory?(path)
 end
 
 Clap.run commands,
-  "status" => lambda {
+  "deploy" => lambda {
     servers.each do |server, assigned_roles|
       out.server(server)
 
       recipes_for(assigned_roles).each do |recipe|
         print "  #{recipe}: "
 
-        case run(server, recipe, :status)
+        case run(server, recipe)
         when nil
           out.unknown
         when 0
           out.ok
         else
-          out.missing
-        end
-      end
-
-      puts
-    end
-  },
-
-  "install" => lambda {
-    servers.each do |server, assigned_roles|
-      out.server(server)
-
-      recipes_for(assigned_roles).each do |recipe|
-        print "  #{recipe}: "
-
-        if run(server, recipe, :status) == 0
-          out.ok
-        else
-          case run(server, recipe, :install)
-          when nil
-            out.unknown
-          when 0
-            if run(server, recipe, :status) == 0
-              out.done
-            else
-              out.missing
-            end
-          else
-            out.error
-          end
+          out.error
         end
       end
 

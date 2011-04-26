@@ -20,30 +20,22 @@ prepare do
   `mkdir /tmp/tele`
 end
 
-test "`tele status` without a config" do
-  out, err, status = tele("status")
+test "`tele deploy` fails without a config" do
+  out, err, status = tele("deploy")
 
   assert err =~ /Couldn't find/
   assert_equal 1, status.exitstatus
 end
 
-test "`tele status` with missing recipes" do
-  out, err = tele("status", "-d", "test/.tele.missing-recipes")
+test "`tele deploy` displays missing recipes" do
+  out, err = tele("deploy", "-d", "test/.tele.missing-recipes")
 
   assert out =~ /db-1/
   assert out =~ /redis: .*\?/
 end
 
-test "`tele status`" do
-  out, err = tele("status", "-d", "test/.tele.simple")
-
-  assert out =~ /db-1/
-  assert out =~ /redis: .*OK/
-  assert out =~ /cassandra: .*MISSING/
-end
-
-test "`tele status`" do
-  out, err = tele("status", "-d", "test/.tele")
+test "`tele deploy` displays layout" do
+  out, err = tele("deploy", "-d", "test/.tele")
 
   assert err.empty?
 
@@ -63,14 +55,12 @@ test "`tele status`" do
   assert parts[2] =~ /unicorn/
 end
 
-test "`tele install`" do
-  out, err = tele("install", "-d", "test/.tele.simple")
+test "`tele deploy` runs recipes" do
+  out, err = tele("deploy", "-d", "test/.tele.simple")
 
   assert out =~ /db-1/
   assert out =~ /cassandra: .*ERROR/
-  assert out =~ /cdb: .*DONE/
   assert out =~ /redis: .*OK/
-  assert out =~ /tokyo: .*MISSING/
 end
 
 test "`tele init`" do
@@ -84,7 +74,7 @@ test "`tele init`" do
 
     assert File.exists?(".tele")
 
-    out, err, status = tele("status")
+    out, err, status = tele("deploy")
     assert status.exitstatus == 0
   end
 end

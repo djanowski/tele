@@ -1,1 +1,0 @@
-touch /tmp/tele/cdb
