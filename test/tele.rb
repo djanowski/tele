@@ -72,6 +72,8 @@ test "`tele init`" do
   Dir.chdir("test/tmp") do
     out, err = tele("init")
 
+    assert err.empty?
+
     assert File.exists?(".tele")
     assert File.exists?(".tele/recipes")
     assert !File.exists?(".tele/recipes/.empty")

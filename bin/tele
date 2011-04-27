@@ -90,7 +90,6 @@ Clap.run commands,
     %x{cp -r #{source} #{target}}
 
     %x{find #{target} -name .empty -print0 | xargs rm}
-    out.done
   }
 
 unless File.directory?(path)
