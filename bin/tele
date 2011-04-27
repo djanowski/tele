@@ -27,9 +27,8 @@ def path(*parts)
   File.expand_path(File.join(*parts), ENV["TELE_HOME"])
 end
 
-def ssh(server, script)
-  %x{bash -c "ssh -T -F #{path("ssh_config")} #{server} < #{script} > >(logger -t 'tele/#{server}') 2>&1"}
-  $?.exitstatus
+def ssh(server, options = [])
+  "ssh #{options.join(" ")} #{server}"
 end
 
 def layout
@@ -48,7 +47,8 @@ def run(server, recipe)
   script = path("recipes", "#{recipe}.sh")
 
   if File.exist?(script)
-    ssh(server, script)
+    %x{bash -c "#{ssh(server, SSH_OPTIONS)} < #{script} > >(logger -t 'tele/#{server}') 2>&1"}
+    $?.exitstatus
   end
 end
 
@@ -98,8 +98,18 @@ unless File.directory?(path)
   exit 1
 end
 
+SSH_OPTIONS = [
+  "-T",
+  "-F", path("ssh_config"),
+  "-S", "/tmp/ssh-%r@%h:%p",
+]
+
 Clap.run commands,
   "deploy" => lambda {
+    servers.each do |server, _|
+      IO.popen(ssh(server, SSH_OPTIONS + %w[-Mq]), "w")
+    end
+
     servers.each do |server, assigned_roles|
       out.server(server)
 
