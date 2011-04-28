@@ -86,5 +86,5 @@ end
 test "Logging to syslog" do
   out, err = tele("status", "-d", "test/.tele.simple")
 
-  assert `tail -n 20 /var/log/syslog /var/log/system.log 2>/dev/null`["Can't find Cassandra"]
+  assert `tail -n 20 /var/log/syslog /var/log/system.log 2>/dev/null`[%r{tele/db-1/cassandra.*Can't find Cassandra}]
 end
