@@ -4,7 +4,7 @@ NAME
       tele -- Provisioning at a distance.
 
 SYNOPSIS
-      tele [-h] [-d path] (init|status|install)
+      tele [-h] [-d path] (init|deploy)
 
 DESCRIPTION
       Tele is a small provisioning framework that allows you to run bash
@@ -16,10 +16,8 @@ DESCRIPTION
 
           .tele/layout.json
           .tele/ssh_config
-          .tele/recipes/redis/status.sh
-          .tele/recipes/redis/install.sh
-          .tele/recipes/unicorn/status.sh
-          .tele/recipes/unicorn/install.sh
+          .tele/recipes/redis.sh
+          .tele/recipes/unicorn.sh
 
       In the example, there are recipes for Redis and Unicorn. Please note that you are in
       charge of creating them.
@@ -67,16 +65,9 @@ DESCRIPTION
       init
           Copies a .tele template to the current directory.
 
-      status
-          Runs every status.sh script on the servers declared in layout.json,
-          and prints the responses. The status.sh script must return 0 if
-          everything is correct, and a value different form zero otherwise.
-          What to check in the script is up to the user.
-
-      install
-          Runs every install.sh script on the servers declared in layout.json,
-          but only if the status.sh returns an error. The exit code must be 0
-          if the installation was successful.
+      deploy
+          Runs every recipe script on the servers declared in layout.json. The
+          exit code must be 0 if the command was successful.
 
 USAGE
       To provision two servers called `server1` and `server2` with Redis,
@@ -85,13 +76,8 @@ USAGE
           # Create the .tele directory.
           $ tele init
 
-          # Create directories for the recipes.
-          $ mkdir -p .tele/recipes/redis
-
-          # Create status.sh script.
-          $ echo "which redis-server" > ./tele/recipes/redis/status.sh
-
-          # Create install.sh script (ommited).
+          # Create the Redis recipe.
+          $ echo "which redis-server || sudo apt-get install redis" > .tele/recipes/redis.sh
 
           # Edit .tele/layout.json as follows:
 
@@ -114,8 +100,8 @@ USAGE
             Host server2
               Hostname 10.0.0.2
 
-          # Run tele install
-          $ tele install
+          # Run tele deploy
+          $ tele deploy
 
 INSTALLATION
       $ gem install tele
