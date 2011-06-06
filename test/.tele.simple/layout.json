@@ -1,9 +1,10 @@
 {
   "roles": {
-    "db": ["redis", "cassandra", "cdb", "tokyo"]
+    "db":  ["redis", "cassandra", "cdb", "tokyo", "touch-count"],
+    "web": ["touch-count"]
   },
 
   "servers": {
-    "db-1": ["db"]
+    "staging": ["db", "web"]
   }
 }

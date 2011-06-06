@@ -58,9 +58,15 @@ end
 test "`tele deploy` runs recipes" do
   out, err = tele("deploy", "-d", "test/.tele.simple")
 
-  assert out =~ /db-1/
+  assert out =~ /staging/
   assert out =~ /cassandra: .*ERROR/
   assert out =~ /redis: .*OK/
+end
+
+test "`tele deploy` doesn't run the same recipe twice in a single server" do
+  out, err = tele("deploy", "-d", "test/.tele.simple")
+
+  assert_equal File.read("/tmp/tele/touch-count").to_i, 1
 end
 
 test "`tele init`" do
@@ -86,5 +92,5 @@ end
 test "Logging to syslog" do
   out, err = tele("status", "-d", "test/.tele.simple")
 
-  assert `tail -n 20 /var/log/syslog /var/log/system.log 2>/dev/null`[%r{tele/db-1/cassandra.*Can't find Cassandra}]
+  assert `tail -n 20 /var/log/syslog /var/log/system.log 2>/dev/null`[%r{tele/staging/cassandra.*Can't find Cassandra}]
 end
