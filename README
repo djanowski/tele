@@ -55,7 +55,7 @@ DESCRIPTION
       The following options are available:
 
       -h
-          Display this help message.
+          Displays this help message.
 
       -d path
           Sets path as the directory where tele will search for scripts and
@@ -68,6 +68,9 @@ DESCRIPTION
       deploy
           Runs every recipe script on the servers declared in layout.json. The
           exit code must be 0 if the command was successful.
+
+      tail
+          Displays standard output and standard error from each running recipe.
 
 USAGE
       To provision two servers called `server1` and `server2` with Redis,

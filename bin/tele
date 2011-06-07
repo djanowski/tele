@@ -67,6 +67,10 @@ out = Module.new do
     puts "\033[01;32mOK\033[00m"
   end
 
+  def self.log(match)
+    puts "\033[1;30m#{match[:date]} \033[1;33m#{match[:who]}\033[00m #{match[:message]}"
+  end
+
   def self.unknown
     puts "?"
   end
@@ -92,6 +96,19 @@ Clap.run commands,
     %x{cp -r #{source} #{target}}
 
     %x{find #{target} -name .empty -print0 | xargs rm}
+  },
+
+  "tail" => lambda {
+    $stdout.sync = true
+
+    parser = %r{^(?<date>.* \d\d:\d\d:\d\d) \w+ tele/(?<who>.*)\[\d+\]: (?<message>.*)$}
+
+    IO.popen("tail -0 -f /var/log/system.log /var/log/syslog 2>/dev/null") do |io|
+      while line = io.gets
+        next unless match = parser.match(line)
+        out.log(match)
+      end
+    end
   }
 
 unless File.directory?(path)

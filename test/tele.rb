@@ -94,3 +94,26 @@ test "Logging to syslog" do
 
   assert `tail -n 20 /var/log/syslog /var/log/system.log 2>/dev/null`[%r{tele/staging/cassandra.*Can't find Cassandra}]
 end
+
+test "`tele tail` shows Tele logs" do
+  log = []
+  tailing = false
+
+  t = Thread.new do
+    Open3.popen3("#{root "bin/tele"} tail") do |_, out, _, _|
+      tailing = true
+      while line = out.gets
+        log << line
+      end
+    end
+  end
+
+  until tailing; end
+
+  tele("deploy", "-d", "test/.tele.simple")
+
+  t.kill
+
+  assert_equal log.size, 1
+  assert log[0] =~ %r{staging/cassandra.*Can't find Cassandra}
+end
