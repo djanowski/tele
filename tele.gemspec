@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name              = "tele"
-  s.version           = "0.1.0"
+  s.version           = "0.1.1"
   s.summary           = "Provisioning at a distance"
   s.description       = "Tele is a small provisioning framework that allows you to run bash scripts on remote servers over SSH."
   s.authors           = ["Damian Janowski", "Michel Martens"]
