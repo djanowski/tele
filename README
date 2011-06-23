@@ -4,7 +4,7 @@ NAME
       tele -- Provisioning at a distance.
 
 SYNOPSIS
-      tele [-h] [-d path] (init|deploy)
+      tele [-h] [-d path] [-s server] (init|tail|deploy)
 
 DESCRIPTION
       Tele is a small provisioning framework that allows you to run bash
@@ -62,6 +62,9 @@ DESCRIPTION
           configuration files. You can also use the environment variable
           TELE_HOME.
 
+      -s server
+          Allows you to specify a server you want to deploy.
+
       init
           Copies a .tele template to the current directory.
 
@@ -105,6 +108,9 @@ USAGE
 
           # Run tele deploy
           $ tele deploy
+
+          # Run tele deploy only for server1
+          $ tele deploy -s server1
 
 INSTALLATION
       $ gem install tele
