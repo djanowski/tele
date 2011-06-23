@@ -143,7 +143,7 @@ Clap.run commands,
       recipes_for(assigned_roles).each do |recipe|
         print "  #{recipe}: "
 
-        case val = run(server, recipe)
+        case run(server, recipe)
         when nil
           out.unknown
         when 0
