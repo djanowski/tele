@@ -80,12 +80,19 @@ end
 
 ENV["TELE_HOME"] ||= File.join(Dir.pwd, ".tele")
 
+# Let's try and collect specific servers if ever the user
+# decides to cherry pick his `tele deploy` command.
+selected_servers = {}
+
 commands = Clap.run ARGV,
   "-h" => lambda {
     exec "${PAGER:-less} #{help}"
   },
   "-d" => lambda { |path|
     ENV["TELE_HOME"] = File.join(Dir.pwd, path)
+  },
+  "-s" => lambda { |server|
+    selected_servers[server] = servers[server] if servers.has_key?(server)
   }
 
 Clap.run commands,
@@ -122,19 +129,21 @@ SSH_OPTIONS = [
   "-S", "/tmp/ssh-%r@%h:%p",
 ]
 
+selected_servers = servers if selected_servers.empty?
+
 Clap.run commands,
   "deploy" => lambda {
-    servers.each do |server, _|
+    selected_servers.each do |server, _|
       IO.popen(ssh(server, SSH_OPTIONS + %w[-Mq]), "w")
     end
 
-    servers.each do |server, assigned_roles|
+    selected_servers.each do |server, assigned_roles|
       out.server(server)
 
       recipes_for(assigned_roles).each do |recipe|
         print "  #{recipe}: "
 
-        case run(server, recipe)
+        case val = run(server, recipe)
         when nil
           out.unknown
         when 0
