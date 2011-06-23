@@ -4,7 +4,10 @@ NAME
       tele -- Provisioning at a distance.
 
 SYNOPSIS
-      tele [-h] [-d path] [-s server] (init|tail|deploy)
+      tele init
+      tele deploy [-d path] [-s server]
+      tele tail
+      tele -h
 
 DESCRIPTION
       Tele is a small provisioning framework that allows you to run bash
