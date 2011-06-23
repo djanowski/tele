@@ -128,3 +128,9 @@ test "`tele tail` shows Tele logs" do
   assert_equal log.size, 1
   assert log[0] =~ %r{staging/cassandra.*Can't find Cassandra}
 end
+
+test "`tele foobar` shouts an error" do
+  out, err = tele("foobar", "-d", "test/.tele.simple")
+
+  assert err.include?("Error: unrecognized parameter: foobar")
+end
