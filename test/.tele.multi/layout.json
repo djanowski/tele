@@ -1,0 +1,11 @@
+{
+  "roles": {
+    "db":  ["redis", "cassandra", "cdb", "tokyo", "touch-count"],
+    "web": ["touch-count"]
+  },
+
+  "servers": {
+    "staging": ["db", "web"],
+    "production": ["db", "web"]
+  }
+}

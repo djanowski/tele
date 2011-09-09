@@ -1,0 +1,5 @@
+Host staging
+  Hostname localhost
+
+Host production
+  Hostname localhost

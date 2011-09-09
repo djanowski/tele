@@ -38,7 +38,7 @@ def layout
 end
 
 def servers
-  layout["servers"]
+  $servers ||= layout["servers"]
 end
 
 def roles
@@ -86,9 +86,17 @@ commands = Clap.run ARGV,
   },
   "-d" => lambda { |path|
     ENV["TELE_HOME"] = File.join(Dir.pwd, path)
+  },
+  "-s" => lambda { |server|
+    unless servers.has_key?(server)
+      $stderr.puts "Unknown server: #{server}"
+      exit 1
+    end
+
+    servers.delete_if { |s, _| s != server }
   }
 
-Clap.run commands,
+commands = Clap.run commands,
   "init" => lambda {
     source = File.expand_path("../templates/.tele", File.dirname(__FILE__))
     target = File.expand_path(Dir.pwd)
@@ -122,7 +130,7 @@ SSH_OPTIONS = [
   "-S", "/tmp/ssh-%r@%h:%p",
 ]
 
-Clap.run commands,
+commands = Clap.run commands,
   "deploy" => lambda {
     servers.each do |server, _|
       IO.popen(ssh(server, SSH_OPTIONS + %w[-Mq]), "w")
@@ -147,3 +155,8 @@ Clap.run commands,
       puts
     end
   }
+
+unless commands.empty?
+  $stderr.puts "Error: unrecognized parameter: #{commands.join(" ")}"
+  exit 1
+end

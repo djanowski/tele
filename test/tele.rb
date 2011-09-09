@@ -63,6 +63,17 @@ test "`tele deploy` runs recipes" do
   assert out =~ /redis: .*OK/
 end
 
+test "`tele deploy -s production` runs only production recipes" do
+  out, err = tele("deploy", "-d", "test/.tele.multi", "-s", "production")
+
+  assert out !~ /staging/
+
+  assert out =~ /production/
+  assert out =~ /cassandra: .*ERROR/
+  assert out =~ /redis: .*OK/
+end
+
+
 test "`tele deploy` doesn't run the same recipe twice in a single server" do
   out, err = tele("deploy", "-d", "test/.tele.simple")
 
@@ -116,4 +127,10 @@ test "`tele tail` shows Tele logs" do
 
   assert_equal log.size, 1
   assert log[0] =~ %r{staging/cassandra.*Can't find Cassandra}
+end
+
+test "`tele foobar` shouts an error" do
+  out, err = tele("foobar", "-d", "test/.tele.simple")
+
+  assert err.include?("Error: unrecognized parameter: foobar")
 end
