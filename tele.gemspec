@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "bin/*",
     "templates/.tele/**/*",
+    "templates/.tele/recipes/.*",
     "*.gemspec",
     "test/*.*"
   ]
