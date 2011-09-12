@@ -101,7 +101,7 @@ test "`tele init`" do
 end
 
 test "Logging to syslog" do
-  out, err = tele("status", "-d", "test/.tele.simple")
+  out, err = tele("deploy", "-d", "test/.tele.simple")
 
   assert `tail -n 20 /var/log/syslog /var/log/system.log 2>/dev/null`[%r{tele/staging/cassandra.*Can't find Cassandra}]
 end
