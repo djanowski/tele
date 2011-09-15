@@ -49,7 +49,15 @@ def run(server, recipe)
   script = path("recipes", "#{recipe}.sh")
 
   if File.exist?(script)
-    %x{bash -c "#{ssh(server, SSH_OPTIONS)} < #{script} > >(logger -t 'tele/#{server}/#{recipe}') 2>&1"}
+    settings = path("settings", "#{recipe}.sh")
+
+    if File.exist?(settings)
+      scripts = "#{settings} #{script}"
+    else
+      scripts = "#{script}"
+    end
+
+    %x{bash -c "cat #{scripts} | #{ssh(server, SSH_OPTIONS)} > >(logger -t 'tele/#{server}/#{recipe}') 2>&1"}
     $?.exitstatus
   end
 end
