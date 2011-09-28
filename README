@@ -115,5 +115,17 @@ USAGE
           # Run tele deploy only for server1
           $ tele deploy -s server1
 
+REQUIREMENTS
+
+      ruby >= 1.9.2
+
 INSTALLATION
+
       $ gem install tele
+
+TESTING
+
+    The system running the tests must be able to ssh into itself without a password.
+
+    $ bundle
+    $ bundle exec rake
