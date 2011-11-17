@@ -49,14 +49,22 @@ def run(server, recipe)
   script = path("recipes", "#{recipe}.sh")
 
   if File.exist?(script)
-    %x{bash -c "#{ssh(server, SSH_OPTIONS)} < #{script} > >(logger -t 'tele/#{server}/#{recipe}') 2>&1"}
+    IO.popen(ssh(server, SSH_OPTIONS), "r+") do |io|
+      io.puts(File.read(script))
+      io.close_write
+
+      while line = io.gets
+        puts "#{server}/#{recipe}: #{line}"
+      end
+    end
+
     $?.exitstatus
   end
 end
 
 out = Module.new do
-  def self.server(name)
-    puts name
+  def self.recipe(server, recipe)
+    print "#{server}/#{recipe}: "
   end
 
   def self.error
@@ -67,12 +75,8 @@ out = Module.new do
     puts "\033[01;32mOK\033[00m"
   end
 
-  def self.log(match)
-    puts "\033[1;30m#{match[:date]} \033[1;33m#{match[:who]}\033[00m #{match[:message]}"
-  end
-
   def self.unknown
-    puts "?"
+    puts "\033[1;33m?\033[00m"
   end
 end
 
@@ -104,19 +108,6 @@ commands = Clap.run commands,
     %x{cp -r #{source} #{target}}
 
     %x{find #{target} -name .empty -print0 | xargs rm}
-  },
-
-  "tail" => lambda {
-    $stdout.sync = true
-
-    parser = %r{^(?<date>.* \d\d:\d\d:\d\d) \w+ tele/(?<who>.*)\[\d+\]: (?<message>.*)$}
-
-    IO.popen("tail -0 -f /var/log/system.log /var/log/syslog 2>/dev/null") do |io|
-      while line = io.gets
-        next unless match = parser.match(line)
-        out.log(match)
-      end
-    end
   }
 
 unless File.directory?(path)
@@ -137,10 +128,12 @@ commands = Clap.run commands,
     end
 
     servers.each do |server, assigned_roles|
-      out.server(server)
+      # out.server(server)
 
       recipes_for(assigned_roles).each do |recipe|
-        print "  #{recipe}: "
+        # print "  #{recipe}: "
+
+        out.recipe(server, recipe)
 
         case run(server, recipe)
         when nil
@@ -151,8 +144,6 @@ commands = Clap.run commands,
           out.error
         end
       end
-
-      puts
     end
   }
 

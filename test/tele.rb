@@ -31,7 +31,7 @@ test "`tele deploy` displays missing recipes" do
   out, err = tele("deploy", "-d", "test/.tele.missing-recipes")
 
   assert out =~ /db-1/
-  assert out =~ /redis: .*\?/
+  assert out =~ /redis.*: .*\?/
 end
 
 test "`tele deploy` displays layout" do
@@ -58,9 +58,8 @@ end
 test "`tele deploy` runs recipes" do
   out, err = tele("deploy", "-d", "test/.tele.simple")
 
-  assert out =~ /staging/
-  assert out =~ /cassandra: .*ERROR/
-  assert out =~ /redis: .*OK/
+  assert out =~ %r[staging/cassandra.* .*ERROR]
+  assert out =~ %r[staging/redis.* .*OK]
 end
 
 test "`tele deploy -s production` runs only production recipes" do
@@ -68,9 +67,8 @@ test "`tele deploy -s production` runs only production recipes" do
 
   assert out !~ /staging/
 
-  assert out =~ /production/
-  assert out =~ /cassandra: .*ERROR/
-  assert out =~ /redis: .*OK/
+  assert out =~ %r[production/cassandra.*: .*ERROR]
+  assert out =~ %r[production/redis.*: .*OK]
 end
 
 
@@ -98,35 +96,6 @@ test "`tele init`" do
     out, err, status = tele("deploy")
     assert status.exitstatus == 0
   end
-end
-
-test "Logging to syslog" do
-  out, err = tele("deploy", "-d", "test/.tele.simple")
-
-  assert `tail -n 20 /var/log/syslog /var/log/system.log 2>/dev/null`[%r{tele/staging/cassandra.*Can't find Cassandra}]
-end
-
-test "`tele tail` shows Tele logs" do
-  log = []
-  tailing = false
-
-  t = Thread.new do
-    Open3.popen3("#{root "bin/tele"} tail") do |_, out, _, _|
-      tailing = true
-      while line = out.gets
-        log << line
-      end
-    end
-  end
-
-  until tailing; end
-
-  tele("deploy", "-d", "test/.tele.simple")
-
-  t.kill
-
-  assert_equal log.size, 1
-  assert log[0] =~ %r{staging/cassandra.*Can't find Cassandra}
 end
 
 test "`tele foobar` shouts an error" do
