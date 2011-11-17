@@ -39,27 +39,25 @@ test "`tele deploy` displays layout" do
 
   assert err.empty?
 
-  parts = out.split("\n\n")
+  parts = out.split("\n")
 
-  assert parts[0] =~ /app-1/
-  assert parts[0] =~ /redis/
-  assert parts[0] =~ /ruby/
-  assert parts[0] =~ /unicorn/
+  assert parts[0] =~ %r[^app-1/redis]
+  assert parts[1] =~ %r[^app-1/ruby]
+  assert parts[2] =~ %r[^app-1/unicorn]
 
-  assert parts[1] =~ /app-2/
-  assert parts[1] =~ /redis/
+  assert parts[3] =~ %r[^app-2/redis]
 
-  assert parts[2] =~ /app-3/
-  assert parts[2] =~ /redis/
-  assert parts[2] =~ /ruby/
-  assert parts[2] =~ /unicorn/
+  assert parts[4] =~ %r[app-3/redis]
+  assert parts[5] =~ %r[app-3/ruby]
+  assert parts[6] =~ %r[app-3/unicorn]
 end
 
 test "`tele deploy` runs recipes" do
   out, err = tele("deploy", "-d", "test/.tele.simple")
 
-  assert out =~ %r[staging/cassandra.* .*ERROR]
-  assert out =~ %r[staging/redis.* .*OK]
+  assert out =~ %r[^staging/cassandra.* .*ERROR]
+  assert out =~ %r[^staging/redis.* Installed]
+  assert out =~ %r[^staging/redis.* .*OK]
 end
 
 test "`tele deploy -s production` runs only production recipes" do
