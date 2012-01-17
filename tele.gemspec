@@ -11,6 +11,9 @@ Gem::Specification.new do |s|
 
   s.add_dependency("clap")
 
+  s.add_development_dependency("cutest")
+  s.add_development_dependency("rake", "0.8.7")
+
   s.files = Dir[
     "LICENSE",
     "README*",
