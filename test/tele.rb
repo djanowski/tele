@@ -101,3 +101,9 @@ test "`tele foobar` shouts an error" do
 
   assert err.include?("Error: unrecognized parameter: foobar")
 end
+
+test "`tele exec` runs commands" do
+  out, err = tele("exec", "echo foo", "-d", "test/.tele.simple")
+
+  assert out.include?("staging: foo")
+end

@@ -6,7 +6,7 @@ NAME
 SYNOPSIS
       tele init
       tele deploy [-d path] [-s server]
-      tele tail
+      tele exec [-d path] [-s server] command
       tele -h
 
 DESCRIPTION
@@ -75,8 +75,8 @@ DESCRIPTION
           Runs every recipe script on the servers declared in layout.json. The
           exit code must be 0 if the command was successful.
 
-      tail
-          Displays standard output and standard error from each running recipe.
+      exec
+          Runs an arbitrary command on the matching servers.
 
 USAGE
       To provision two servers called `server1` and `server2` with Redis,
