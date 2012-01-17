@@ -30,7 +30,7 @@ def path(*parts)
 end
 
 def ssh(server, options = [])
-  "ssh #{options.join(" ")} #{server}"
+  ["ssh", *options, server]
 end
 
 def layout
@@ -70,7 +70,7 @@ def run(server, recipe, script)
 end
 
 def execute(server, script)
-  IO.popen(ssh(server, SSH_OPTIONS), "r+") do |io|
+  IO.popen([*ssh(server, SSH_OPTIONS), err: [:child, :out]], "r+") do |io|
     io.puts(script)
     io.close_write
 

@@ -55,6 +55,7 @@ end
 test "`tele deploy` runs recipes" do
   out, err = tele("deploy", "-d", "test/.tele.simple")
 
+  assert out =~ %r[^staging/cassandra.* .*Can't find Cassandra]
   assert out =~ %r[^staging/cassandra.* .*ERROR]
   assert out =~ %r[^staging/redis.* Installed]
   assert out =~ %r[^staging/redis.* .*OK]
