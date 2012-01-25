@@ -51,7 +51,7 @@ def run(server, recipe, script)
   if script.nil?
     $out.unknown
     print "\n"
-    return
+    return true
   end
 
   result = execute(server, script) do |line|
@@ -67,6 +67,8 @@ def run(server, recipe, script)
   end
 
   print "\n"
+
+  result == 0
 end
 
 def execute(server, script)
@@ -161,7 +163,9 @@ commands = Clap.run commands,
       recipes_for(assigned_roles).each do |recipe|
         script = path("recipes", "#{recipe}.sh")
 
-        run(server, recipe, (File.read(script) if File.exist?(script)))
+        result = run(server, recipe, (File.read(script) if File.exist?(script)))
+
+        break unless result
       end
     end
   }

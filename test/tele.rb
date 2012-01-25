@@ -70,6 +70,12 @@ test "`tele deploy -s production` runs only production recipes" do
   assert out =~ %r[production/redis.*: .*OK]
 end
 
+test "`tele deploy` halts deploy if a recipe fails" do
+  out, err = tele("deploy", "-d", "test/.tele.error")
+
+  assert out =~ %r[db-1/cassandra.*: .*ERROR]
+  assert out !~ %r[db-1/no-run]
+end
 
 test "`tele deploy` doesn't run the same recipe twice in a single server" do
   out, err = tele("deploy", "-d", "test/.tele.simple")
