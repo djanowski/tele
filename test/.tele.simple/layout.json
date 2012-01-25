@@ -1,6 +1,6 @@
 {
   "roles": {
-    "db":  ["redis", "cassandra", "cdb", "tokyo", "touch-count"],
+    "db":  ["redis", "cdb", "touch-count", "cassandra"],
     "web": ["touch-count"]
   },
 
