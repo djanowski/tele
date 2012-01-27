@@ -10,7 +10,7 @@ SYNOPSIS
       tele -h
 
 DESCRIPTION
-      Tele is a small provisioning framework that allows you to run bash
+      Tele is a small provisioning framework that allows you to run shell
       scripts on remote servers over SSH. It uses your own SSH, not a Ruby
       version, so you can profit from your settings and public/private keys.
 
@@ -49,7 +49,7 @@ DESCRIPTION
           The key "roles" stores a tree, where each key is mapped
           to an array of recipes. The leaves--those elements in the tree that
           are not present as keys--are the ones that have to be available as
-          Bash scripts. In this example, both "redis" and "unicorn" are leaves,
+          shell scripts. In this example, both "redis" and "unicorn" are leaves,
           while "db" and "web" are recipes composed of other recipes.
 
           The key "environments" stores a map of environments to servers to roles.
