@@ -28,14 +28,14 @@ test "`tele deploy` fails without a config" do
 end
 
 test "`tele deploy` displays missing recipes" do
-  out, err = tele("deploy", "-d", "test/.tele.missing-recipes")
+  out, err = tele("deploy", "-d", "test/.tele.missing-recipes", "production")
 
   assert out =~ /db-1/
   assert out =~ /redis.*: .*\?/
 end
 
 test "`tele deploy` displays layout" do
-  out, err = tele("deploy", "-d", "test/.tele")
+  out, err = tele("deploy", "-d", "test/.tele", "production")
 
   assert err.empty?
 
@@ -53,32 +53,30 @@ test "`tele deploy` displays layout" do
 end
 
 test "`tele deploy` runs recipes" do
-  out, err = tele("deploy", "-d", "test/.tele.simple")
+  out, err = tele("deploy", "-d", "test/.tele.simple", "production")
 
-  assert out =~ %r[^staging/cassandra.* .*Can't find Cassandra]
-  assert out =~ %r[^staging/cassandra.* .*ERROR]
-  assert out =~ %r[^staging/redis.* Installed]
-  assert out =~ %r[^staging/redis.* .*OK]
+  assert out =~ %r[^app-1/cassandra.* .*Can't find Cassandra]
+  assert out =~ %r[^app-1/cassandra.* .*ERROR]
+  assert out =~ %r[^app-1/redis.* Installed]
+  assert out =~ %r[^app-1/redis.* .*OK]
 end
 
-test "`tele deploy -s production` runs only production recipes" do
-  out, err = tele("deploy", "-d", "test/.tele.multi", "-s", "production")
+test "`tele deploy ENVIRONMENT` only deploys the given environment" do
+  out, err = tele(*%w[deploy -d test/.tele.envs staging])
 
-  assert out !~ /staging/
-
-  assert out =~ %r[production/cassandra.*: .*ERROR]
-  assert out =~ %r[production/redis.*: .*OK]
+  assert File.exist?("/tmp/tele/staging")
+  assert !File.exist?("/tmp/tele/production")
 end
 
 test "`tele deploy` halts deploy if a recipe fails" do
-  out, err = tele("deploy", "-d", "test/.tele.error")
+  out, err = tele("deploy", "-d", "test/.tele.error", "production")
 
   assert out =~ %r[db-1/cassandra.*: .*ERROR]
   assert out !~ %r[db-1/no-run]
 end
 
 test "`tele deploy` doesn't run the same recipe twice in a single server" do
-  out, err = tele("deploy", "-d", "test/.tele.simple")
+  out, err = tele("deploy", "-d", "test/.tele.simple", "production")
 
   assert_equal File.read("/tmp/tele/touch-count").to_i, 1
 end
@@ -98,19 +96,19 @@ test "`tele init`" do
     assert File.exists?(".tele/recipes")
     assert !File.exists?(".tele/recipes/.empty")
 
-    out, err, status = tele("deploy")
+    out, err, status = tele("deploy", "production")
     assert status.exitstatus == 0
   end
 end
 
 test "`tele foobar` shouts an error" do
-  out, err = tele("foobar", "-d", "test/.tele.simple")
+  out, err = tele("foobar", "-d", "test/.tele.simple", "production")
 
   assert err.include?("Error: unrecognized parameter: foobar")
 end
 
 test "`tele exec` runs commands" do
-  out, err = tele("exec", "echo foo", "-d", "test/.tele.simple")
+  out, err = tele("exec", "production", "echo foo", "-d", "test/.tele.simple")
 
-  assert out.include?("staging: foo")
+  assert out.include?("app-1: foo")
 end

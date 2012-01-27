@@ -3,7 +3,9 @@
 
   },
 
-  "servers": {
+  "environments": {
+    "production": {
 
+    }
   }
 }

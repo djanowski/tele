@@ -37,8 +37,12 @@ def layout
   $layout ||= JSON.parse(File.read(path("layout.json")))
 end
 
+def environments
+  layout["environments"]
+end
+
 def servers
-  $servers ||= layout["servers"]
+  environments[$environment]
 end
 
 def roles
@@ -120,14 +124,6 @@ commands = Clap.run ARGV,
   },
   "-d" => lambda { |path|
     ENV["TELE_HOME"] = File.join(Dir.pwd, path)
-  },
-  "-s" => lambda { |server|
-    unless servers.has_key?(server)
-      $stderr.puts "Unknown server: #{server}"
-      exit 1
-    end
-
-    servers.delete_if { |s, _| s != server }
   }
 
 commands = Clap.run commands,
@@ -138,6 +134,8 @@ commands = Clap.run commands,
     %x{cp -r #{source} #{target}}
 
     %x{find #{target} -name .empty -print0 | xargs rm}
+
+    exit 0
   }
 
 unless File.directory?(path)
@@ -150,6 +148,13 @@ SSH_OPTIONS = [
   "-F", path("ssh_config"),
   "-S", "/tmp/ssh-%r@%h:%p",
 ]
+
+$environment = commands.delete_at(1)
+
+if environments[$environment].nil?
+  $stderr.puts "Unknown environment: #{$environment}"
+  exit 1
+end
 
 commands = Clap.run commands,
   "exec" => lambda { |cmd|

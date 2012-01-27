@@ -5,8 +5,8 @@ NAME
 
 SYNOPSIS
       tele init
-      tele deploy [-d path] [-s server]
-      tele exec [-d path] [-s server] command
+      tele deploy environment [-d path]
+      tele exec environment command [-d path]
       tele -h
 
 DESCRIPTION
@@ -26,34 +26,38 @@ DESCRIPTION
       charge of creating them.
 
       layout.json
-          The server layout, with the available roles and servers. Example:
+          The server layout, with the available roles, environments and servers. Example:
 
           {
             "roles": {
-              "db": ["redis"],
+              "db":  ["redis"],
               "web": ["ruby", "unicorn"],
-              "app": ["db", "web"]
             },
 
-            "servers": {
-              "app-1": ["db", "web"],
-              "app-2": ["db"],
-              "app-3": ["app"]
+            "environments": {
+              "staging": {
+                "ec2-small": ["db", "web"]
+              },
+
+              "production": {
+                "linode-1": ["db"],
+                "linode-2": ["web"]
+              }
             }
           }
 
           The key "roles" stores a tree, where each key is mapped
           to an array of recipes. The leaves--those elements in the tree that
           are not present as keys--are the ones that have to be available as
-          bash scripts. In this example, both "redis" and "unicorn" are leaves,
-          while "db", "web" and "app" are recipes composed of other recipes.
+          Bash scripts. In this example, both "redis" and "unicorn" are leaves,
+          while "db" and "web" are recipes composed of other recipes.
 
-          The key "servers" stores a map of servers to roles. The keys can be
-          either hostnames declared in .tele/ssh_config or IP addresses.
+          The key "environments" stores a map of environments to servers to roles.
+          Server names must correspond with an entry in .tele/ssh_config.
 
       ssh_config
-          Configuration file for the SSH connection. Check the SSH_CONFIG man
-          page for more information.
+          Configuration file for the SSH connection.
+          Check ssh_config(5) for more information.
 
       The following options are available:
 
@@ -65,18 +69,16 @@ DESCRIPTION
           configuration files. You can also use the environment variable
           TELE_HOME.
 
-      -s server
-          Allows you to specify a server you want to deploy.
-
       init
           Copies a .tele template to the current directory.
 
-      deploy
-          Runs every recipe script on the servers declared in layout.json. The
-          exit code must be 0 if the command was successful.
+      deploy environment
+          Runs every recipe script on the servers declared in layout.json for
+          the given environment.
+          Deploying halts on the first failed recipe.
 
-      exec
-          Runs an arbitrary command on the matching servers.
+      exec environment command
+          Runs an arbitrary command on all servers of the given environment.
 
 USAGE
       To provision two servers called `server1` and `server2` with Redis,
@@ -95,9 +97,11 @@ USAGE
                 "db": ["redis"]
               },
 
-              "servers": {
-                "server1": ["db"],
-                "server2": ["db"]
+              "environments": {
+                "development" {
+                  "server1": ["db"],
+                  "server2": ["db"]
+                }
               }
             }
 
@@ -110,10 +114,7 @@ USAGE
               Hostname 10.0.0.2
 
           # Run tele deploy
-          $ tele deploy
-
-          # Run tele deploy only for server1
-          $ tele deploy -s server1
+          $ tele deploy development
 
 INSTALLATION
       $ gem install tele

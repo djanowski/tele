@@ -3,7 +3,9 @@
     "db": ["redis"]
   },
 
-  "servers": {
-    "db-1": ["db"]
+  "environments": {
+    "production": {
+      "db-1": ["db"]
+    }
   }
 }

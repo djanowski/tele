@@ -4,7 +4,9 @@
     "web": ["touch-count"]
   },
 
-  "servers": {
-    "staging": ["db", "web"]
+  "environments": {
+    "production": {
+      "app-1": ["db", "web"]
+    }
   }
 }

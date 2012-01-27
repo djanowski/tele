@@ -1,0 +1,13 @@
+{
+  "roles": {},
+
+  "environments": {
+    "staging": {
+      "app-1": ["touch-staging"]
+    },
+
+    "production": {
+      "app-2": ["touch-production"]
+    }
+  }
+}
