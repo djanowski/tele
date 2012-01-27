@@ -11,6 +11,12 @@ require "json"
 
 trap(:INT) { puts; exit 1 }
 
+def flunk(message)
+  $stderr.puts(message)
+  $stderr.puts("Run `tele -h` if you need help.")
+  exit 1
+end
+
 def recipes_for(assigned_roles)
   [].tap do |recipes|
     assigned_roles.each do |name|
@@ -138,10 +144,7 @@ commands = Clap.run commands,
     exit 0
   }
 
-unless File.directory?(path)
-  $stderr.puts "Couldn't find a .tele directory"
-  exit 1
-end
+flunk("Couldn't find a .tele directory.") unless File.directory?(path)
 
 SSH_OPTIONS = [
   "-T",
@@ -149,12 +152,11 @@ SSH_OPTIONS = [
   "-S", "/tmp/ssh-%r@%h:%p",
 ]
 
+flunk("Can't find any environments.") unless environments
+
 $environment = commands.delete_at(1)
 
-if environments[$environment].nil?
-  $stderr.puts "Unknown environment: #{$environment}"
-  exit 1
-end
+flunk("Unknown environment: #{$environment}") unless environments[$environment]
 
 commands = Clap.run commands,
   "exec" => lambda { |cmd|
@@ -175,7 +177,4 @@ commands = Clap.run commands,
     end
   }
 
-unless commands.empty?
-  $stderr.puts "Error: unrecognized parameter: #{commands.join(" ")}"
-  exit 1
-end
+flunk("Error: unrecognized parameter: #{commands.join(" ")}") unless commands.empty?
