@@ -31,7 +31,7 @@ DESCRIPTION
           {
             "roles": {
               "db":  ["redis"],
-              "web": ["ruby", "unicorn"],
+              "web": ["ruby", "unicorn"]
             },
 
             "environments": {
